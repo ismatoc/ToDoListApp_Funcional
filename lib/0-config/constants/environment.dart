@@ -10,3 +10,4 @@ class Environment {
   static String apikey = dotenv.env['API_KEY'] ?? 'no existe';
   
 }
+

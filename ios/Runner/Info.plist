@@ -71,5 +71,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Necesitamos usar la cámara para tomar fotos y videos del avance.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Necesitamos acceder a tu galería para adjuntar medios al avance.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Se usa al grabar videos con audio.</string>
 </dict>
 </plist>

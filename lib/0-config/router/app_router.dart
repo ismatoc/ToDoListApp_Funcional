@@ -1,5 +1,5 @@
 import 'package:go_router/go_router.dart';
-import '../../presentation/screens/screens.dart';
+import '../../3-presentation/screens/screens.dart';
 
 
 final appRouter = GoRouter(
@@ -15,7 +15,7 @@ final appRouter = GoRouter(
           name: Principal.name,
           builder: (context, state) => Principal(),
           routes: [
-            
+           
           ]
         )
       ]
