@@ -221,7 +221,7 @@ class _CardsDemoPageState extends ConsumerState<Tareas> {
     ? (tarea.respuesta as List).whereType<Map<String, dynamic>>().toList()
     : <Map<String, dynamic>>[];
 
-    if (tarea == null) {
+    if (tarea.estado == false) {
       return const Center(child: CircularProgressIndicator());
     }
     
@@ -476,7 +476,7 @@ class _CardsDemoPageState extends ConsumerState<Tareas> {
                                               idtarea.setIdTarea(idTarea["id_tarea"]);
                                             },
                                             icon: const Icon(Icons.add, color: Colors.white),
-                                            label: const Text('Avancedddddd', style: TextStyle(color: Colors.white)),
+                                            label: const Text('Avances', style: TextStyle(color: Colors.white)),
                                             style: FilledButton.styleFrom(
                                               backgroundColor: Colors.transparent, // 👈 deja ver el degradado
                                               shadowColor: Colors.transparent,

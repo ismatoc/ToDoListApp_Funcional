@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:todolistapp/3-presentation/screens/tareas/dashboard.dart';
 
+import '../../providers/avance_provider.dart';
 import '../screens.dart';
 
-class Principal extends StatefulWidget {
+class Principal extends ConsumerStatefulWidget {
   static const name = 'principal';
   const Principal({super.key});
 
   @override
-  State<Principal> createState() => _PrincipalState();
+  _PrincipalState createState() => _PrincipalState();
 }
 
-class _PrincipalState extends State<Principal> {
+class _PrincipalState extends ConsumerState<Principal> {
   String _selected = "inicio";
   dynamic? _avanceTareaId;
 
@@ -32,13 +35,14 @@ class _PrincipalState extends State<Principal> {
         return Avances(
           idTarea: _avanceTareaId,
           onBack: () {
+            ref.invalidate(nowAvanceProvider);
             setState(() => _selected = "tareas"); 
           },
         );
       case "config":
         return const Center(child: Text("⚙️ Configuración"));
       default:
-        return const Center(child: Text("🏠 Bienvenido a ToDoList Mixco"));
+        return Dashboard();
     }
   }
 

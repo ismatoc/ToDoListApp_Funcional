@@ -14,5 +14,5 @@ export "package:todolistapp/3-presentation/tools/inputs.dart";
 export "package:todolistapp/3-presentation/screens/tareas/tareas.dart";
 export "package:todolistapp/3-presentation/tools/visor_imagenes.dart";
 export "package:todolistapp/3-presentation/tools/visor_videos.dart";
-
+export "package:todolistapp/3-presentation/tools/loading.dart";
 

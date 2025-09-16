@@ -30,6 +30,8 @@ dependencies:
   # chewie: ^1.7.5
   video_thumbnail: ^0.5.3
   logger: ^2.0.2
+  path_provider: ^2.1.4
+  pie_chart: ^5.4.0
 
 
 dev_dependencies:

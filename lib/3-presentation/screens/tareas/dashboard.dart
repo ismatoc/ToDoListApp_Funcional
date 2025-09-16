@@ -1,0 +1,148 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pie_chart/pie_chart.dart';
+import 'package:todolistapp/3-presentation/providers/dashboard_provider.dart';
+
+import '../../providers/login_providers.dart';
+
+class Dashboard extends ConsumerStatefulWidget {
+  static const name = 'dashboard';
+  const Dashboard({super.key});
+
+  @override
+  _DashboardState createState() => _DashboardState();
+}
+
+class _DashboardState extends ConsumerState<Dashboard> {
+
+  dynamic dashboard;
+
+  int totalTareas = 0;
+  int totalInicio = 0;
+  int totalProceso = 0;
+  int totalFinalizado = 0;
+
+
+  @override
+  void initState(){
+    super.initState();
+    Future.microtask(() async{
+      final loginInfo = ref.read( loginProvider.notifier ).info;
+      dashboard = await ref.read( nowDashboardProvider.notifier ).loadAllData({
+        "tipo_consulta": "R",
+        "id_usuario": loginInfo["id_usuario"]
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    dashboard = ref.watch( nowDashboardProvider );
+
+ 
+
+    if (dashboard.estado == false) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    totalTareas = int.parse(dashboard.respuesta["totales"][3]["total"].toString());
+    totalInicio = int.parse(dashboard.respuesta["totales"][0]["total"].toString());
+    totalProceso = int.parse(dashboard.respuesta["totales"][1]["total"].toString());
+    totalFinalizado = int.parse(dashboard.respuesta["totales"][2]["total"].toString());
+
+    final dataMap = <String, double>{
+      "Inicio": totalInicio.toDouble(),
+      "Proceso": totalProceso.toDouble(),
+      "Finalizado": totalFinalizado.toDouble(),
+    };
+
+    final colorList = <Color>[
+      Colors.blue,
+      Colors.orange,
+      Colors.green,
+    ];
+
+
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          // ---- Bloques de Totales ----
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 2,
+              children: [
+                _buildBlock("Total Tareas", totalTareas, Colors.indigo),
+                _buildBlock("Inicio", totalInicio, Colors.blue),
+                _buildBlock("En Proceso", totalProceso, Colors.orange),
+                _buildBlock("Finalizados", totalFinalizado, Colors.green),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 50),
+
+          // ---- Gráfica de dona a la mitad ----
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: PieChart(
+              dataMap: dataMap,
+              chartType: ChartType.ring,
+              baseChartColor: Colors.grey[200]!,
+              colorList: colorList,
+              chartRadius: MediaQuery.of(context).size.width / 2,
+              chartLegendSpacing: 32,
+              legendOptions: const LegendOptions(
+                legendPosition: LegendPosition.bottom,
+              ),
+              chartValuesOptions: const ChartValuesOptions(
+                showChartValuesInPercentage: true,
+                showChartValuesOutside: true,
+              ),
+              ringStrokeWidth: 32,
+              // 👇 Ajuste para que parezca media dona
+              totalValue: (totalInicio + totalProceso + totalFinalizado).toDouble(),
+              initialAngleInDegree: 180,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+
+Widget _buildBlock(String title, int value, Color color) {
+    return Container(
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            "$value",
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          ),
+        ],
+      ),
+    );
+  }

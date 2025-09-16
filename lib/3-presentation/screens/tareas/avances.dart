@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todolistapp/3-presentation/screens/screens.dart';
 
+import '../../providers/avance_provider.dart';
+
 
 class Avances extends ConsumerStatefulWidget {
   static const name = 'avances';
@@ -66,7 +68,9 @@ class _AvancesState extends ConsumerState<Avances> {
         title: Text("Avances de tarea #" + widget.idTarea["id_tarea"].toString()),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: widget.onBack, // 👈 dispara el callback
+          onPressed: widget.onBack
+             
+        
           
         ),
         // actions: [

@@ -19,4 +19,8 @@ abstract class ConsultasDatasource {
     required List<File> videos,
   });
 
+  Future<Login> getMedia(Map<String, dynamic> info);
+  Future<Login> dashboard(Map<String, dynamic> info);
+  
+
 }

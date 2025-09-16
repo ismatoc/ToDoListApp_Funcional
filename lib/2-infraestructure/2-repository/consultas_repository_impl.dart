@@ -40,6 +40,16 @@ class ConsultasRepositoryImpl extends ConsutlasRepository {
   Future<UploadResult> subirMedios({required Map<String, dynamic> info, required List<File> fotos, required List<File> videos}) {
     return datasource.subirMedios(info: info, fotos: fotos, videos: videos);
   }
+  
+  @override
+  Future<Login> getMedia(Map<String, dynamic> info) {
+    return datasource.getMedia(info);
+  }
+  
+  @override
+  Future<Login> dashboard(Map<String, dynamic> info) {
+    return datasource.dashboard(info);
+  }
 
   
 

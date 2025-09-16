@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +14,10 @@ import 'package:todolistapp/3-presentation/providers/tarea_provider.dart';
 import '../../../1-domain/1-entities/avance.dart';
 import 'package:logger/logger.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:video_player/video_player.dart';
+import 'package:path/path.dart' as p;
+
+import '../../tools/mensajes.dart';
 var logger = Logger();
 class NuevoAvanceSheet extends ConsumerStatefulWidget {
   final String currentUserId;
@@ -105,7 +110,8 @@ class _NuevoAvanceSheetState extends ConsumerState<NuevoAvanceSheet> {
        DateTime fecha = DateTime.now();
        final formato = DateFormat('yyyy-MM-dd');
        _fecha = formato.parse(fecha.toString());
-       _horaCtrl.text = _formatHora24(_hora);
+       TimeOfDay hora = TimeOfDay.fromDateTime(fecha);
+       _horaCtrl.text = _formatHora24(hora);
        _avanceCtrl.text = '$_progreso';
     }
   }
@@ -188,54 +194,143 @@ class _NuevoAvanceSheetState extends ConsumerState<NuevoAvanceSheet> {
   }
 
   // ---------- Videos (multi galería con file_picker + cámara uno a uno) ----------
-  Future<void> _pickVideos() async {
-    final choice = await showModalBottomSheet<String>(
-      context: context,
-      builder: (_) => SafeArea(
-        child: Wrap(children: [
-          ListTile(
-            leading: const Icon(Icons.video_library_outlined),
-            title: const Text('Agregar videos desde galería (múltiples)'),
-            onTap: () => Navigator.pop(context, 'gallery'),
-          ),
-          ListTile(
-            leading: const Icon(Icons.videocam_outlined),
-            title: const Text('Grabar con cámara (uno por vez)'),
-            onTap: () => Navigator.pop(context, 'camera'),
-          ),
-          const Divider(height: 0),
-          ListTile(
-            leading: const Icon(Icons.close),
-            title: const Text('Cancelar'),
-            onTap: () => Navigator.pop(context),
-          ),
-        ]),
-      ),
-    );
 
-    if (choice == 'gallery') {
-      final res = await FilePicker.platform.pickFiles(type: FileType.video, allowMultiple: true);
-      if (res != null && res.files.isNotEmpty) {
-        final files = res.files.where((f) => f.path != null).map((f) => File(f.path!));
-        setState(() => _videos.addAll(files));
+
+
+  
+String _fmtMB(int bytes) => (bytes / (1024 * 1024)).toStringAsFixed(2);
+
+Future<void> logVideoInfo(File f, {String tag = ''}) async {
+  final name = p.basename(f.path);
+  final ext  = p.extension(f.path).toLowerCase();
+  final len  = await f.length(); // bytes
+
+  // Duración (opcional, requiere video_player)
+  Duration? dur;
+  try {
+    final ctrl = VideoPlayerController.file(f);
+    await ctrl.initialize();
+    dur = ctrl.value.duration;
+    await ctrl.dispose();
+  } catch (_) {}
+
+  // Log
+  // ignore: avoid_print
+  print([
+    if (tag.isNotEmpty) '[$tag]',
+    'path=${f.path}',
+    'name="$name" (len=${name.length})',
+    'ext=$ext',
+    'size=${len}B (${_fmtMB(len)} MB)',
+    if (dur != null) 'duration=${dur.inMilliseconds}ms (~${dur.inSeconds}s)',
+  ].join('  |  '));
+}
+
+
+  // Future<void> _pickVideos() async {
+  //   final choice = await showModalBottomSheet<String>(
+  //     context: context,
+  //     builder: (_) => SafeArea(
+  //       child: Wrap(children: [
+  //         ListTile(
+  //           leading: const Icon(Icons.video_library_outlined),
+  //           title: const Text('Agregar videos desde galería (múltiples)'),
+  //           onTap: () => Navigator.pop(context, 'gallery'),
+  //         ),
+  //         ListTile(
+  //           leading: const Icon(Icons.videocam_outlined),
+  //           title: const Text('Grabar con cámara (uno por vez)'),
+  //           onTap: () => Navigator.pop(context, 'camera'),
+  //         ),
+  //         const Divider(height: 0),
+  //         ListTile(
+  //           leading: const Icon(Icons.close),
+  //           title: const Text('Cancelar'),
+  //           onTap: () => Navigator.pop(context),
+  //         ),
+  //       ]),
+  //     ),
+  //   );
+
+  //   if (choice == 'gallery') {
+  //     final res = await FilePicker.platform.pickFiles(type: FileType.video, allowMultiple: true);
+  //     if (res != null && res.files.isNotEmpty) {
+  //       final files = res.files.where((f) => f.path != null).map((f) => File(f.path!));
+  //       setState(() => _videos.addAll(files));
+  //     }
+  //   } else if (choice == 'camera') {
+  //     final v = await _picker.pickVideo(source: ImageSource.camera, maxDuration: const Duration(minutes: 5));
+  //     if (v != null) setState(() => _videos.add(File(v.path)));
+  //   }
+  // }
+
+
+  Future<void> _pickVideos() async {
+  final choice = await showModalBottomSheet<String>(
+    context: context,
+    builder: (_) => SafeArea(
+      child: Wrap(children: [
+        ListTile(
+          leading: const Icon(Icons.video_library_outlined),
+          title: const Text('Agregar videos desde galería (múltiples)'),
+          onTap: () => Navigator.pop(context, 'gallery'),
+        ),
+        ListTile(
+          leading: const Icon(Icons.videocam_outlined),
+          title: const Text('Grabar con cámara (uno por vez)'),
+          onTap: () => Navigator.pop(context, 'camera'),
+        ),
+        const Divider(height: 0),
+        ListTile(
+          leading: const Icon(Icons.close),
+          title: const Text('Cancelar'),
+          onTap: () => Navigator.pop(context),
+        ),
+      ]),
+    ),
+  );
+
+  if (choice == 'gallery') {
+    // TIP: con FilePicker puedes obtener el tamaño sin abrir File
+    final res = await FilePicker.platform.pickFiles(
+      type: FileType.video,
+      allowMultiple: true,
+      withData: false, // true también te trae bytes, pero no es necesario
+    );
+    if (res != null && res.files.isNotEmpty) {
+      final files = <File>[];
+      for (final pf in res.files) {
+        if (pf.path == null) continue;
+        final f = File(pf.path!);
+        // Log de tamaño/nombre/duración
+        await logVideoInfo(f, tag: 'GALLERY');
+        files.add(f);
       }
-    } else if (choice == 'camera') {
-      final v = await _picker.pickVideo(source: ImageSource.camera, maxDuration: const Duration(minutes: 5));
-      if (v != null) setState(() => _videos.add(File(v.path)));
+      setState(() => _videos.addAll(files));
+    }
+  } else if (choice == 'camera') {
+    final v = await _picker.pickVideo(
+      source: ImageSource.camera,
+      maxDuration: const Duration(minutes: 5),
+    );
+    if (v != null) {
+      final f = File(v.path);
+      // Log de tamaño/nombre/duración
+      await logVideoInfo(f, tag: 'CAMERA');
+      setState(() => _videos.add(f));
     }
   }
+}
+
 
   void _removeFotoAt(int i) => setState(() => _fotos.removeAt(i));
   void _removeVideoAt(int i) => setState(() => _videos.removeAt(i));
 
   Future<void> _guardar() async {
     final txt = _txtCtrl.text.trim();
-    // if (txt.isEmpty && _fotos.isEmpty && _videos.isEmpty) {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(content: Text('Agrega descripción, fotos o videos.')),
-    //   );
-    //   return;
-    // }
+    if (txt.isEmpty) {
+      return Mensajes('error', 'descripcion es requerido.!', DialogType.error, context);
+    }
 
     final msg = ChatMessage(
       id: widget.inicial?.id ?? DateTime.now().microsecondsSinceEpoch.toString(),
@@ -272,7 +367,7 @@ class _NuevoAvanceSheetState extends ConsumerState<NuevoAvanceSheet> {
       info
     );
 
-    logger.d(providerAvance.respuesta["id_tarea_detalle"]);
+    
 
     var infoMultimedia = {
       "tipo_consulta": "C",
@@ -292,7 +387,18 @@ class _NuevoAvanceSheetState extends ConsumerState<NuevoAvanceSheet> {
     );
 
 
+    // Navigator.pop(context, msg);
+
+    // Future.microtask(() {
+    //   Mensajes('correcto', 'avance guardado con éxito.!', DialogType.success, context);
+    // });
+
     Navigator.pop(context, msg);
+
+    final rootContext = Navigator.of(context, rootNavigator: true).context;
+    Mensajes('correcto', 'avance guardado con éxito.!', DialogType.success, rootContext);
+
+
   }
 
   @override
