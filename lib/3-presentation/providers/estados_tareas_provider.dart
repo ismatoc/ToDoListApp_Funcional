@@ -38,9 +38,16 @@ final estadosTareasProvider = ChangeNotifierProvider((ref) => LoginProvider());
 class LoginProvider extends ChangeNotifier {
   dynamic _info;
   dynamic get info => _info;
+  dynamic _id_estado_tarea;
+  dynamic get id_estado_tarea => _id_estado_tarea;
 
   void setInfo(dynamic newInfo){
     _info = newInfo;
+    notifyListeners();
+  }
+
+  void setId(dynamic newId){
+    _id_estado_tarea = newId;
     notifyListeners();
   }
 }

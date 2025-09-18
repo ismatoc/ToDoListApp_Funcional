@@ -17,6 +17,8 @@ class _PrincipalState extends ConsumerState<Principal> {
   String _selected = "inicio";
   dynamic? _avanceTareaId;
 
+  int? _idEstadoTareaFiltro;
+
   Widget _getContent() {
     switch (_selected) {
       case "tarea":
@@ -42,7 +44,14 @@ class _PrincipalState extends ConsumerState<Principal> {
       case "config":
         return const Center(child: Text("⚙️ Configuración"));
       default:
-        return Dashboard();
+        return Dashboard(
+          onVerTareas: (int idEstadoTarea) {
+            setState(() {
+              _idEstadoTareaFiltro = idEstadoTarea;
+              _selected = "tareas";
+            });
+          },
+        );
     }
   }
 

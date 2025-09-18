@@ -1,13 +1,17 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pie_chart/pie_chart.dart';
 import 'package:todolistapp/3-presentation/providers/dashboard_provider.dart';
 
+import '../../providers/estados_tareas_provider.dart';
 import '../../providers/login_providers.dart';
 
 class Dashboard extends ConsumerStatefulWidget {
   static const name = 'dashboard';
-  const Dashboard({super.key});
+  final void Function(int idEstadoTarea) onVerTareas;
+  const Dashboard({super.key, required this.onVerTareas});
 
   @override
   _DashboardState createState() => _DashboardState();
@@ -58,9 +62,9 @@ class _DashboardState extends ConsumerState<Dashboard> {
     };
 
     final colorList = <Color>[
-      Colors.blue,
-      Colors.orange,
-      Colors.green,
+      Color(0xFF2196F3),
+      Color(0xFFFF9800),
+      Color(0xFF4CAF50),
     ];
 
 
@@ -79,9 +83,27 @@ class _DashboardState extends ConsumerState<Dashboard> {
               childAspectRatio: 2,
               children: [
                 _buildBlock("Total Tareas", totalTareas, Colors.indigo),
-                _buildBlock("Inicio", totalInicio, Colors.blue),
-                _buildBlock("En Proceso", totalProceso, Colors.orange),
-                _buildBlock("Finalizados", totalFinalizado, Colors.green),
+                GestureDetector(
+                  onTap: () {
+                    widget.onVerTareas(1);
+                    final idEstadoTarea = ref.watch( estadosTareasProvider );
+                    idEstadoTarea.setId(1);
+                  },
+                  child: _buildBlock("Inicio", totalInicio, Colors.blue)),
+                GestureDetector(
+                  onTap: () {
+                    widget.onVerTareas(2);
+                    final idEstadoTarea = ref.watch( estadosTareasProvider );
+                    idEstadoTarea.setId(2);
+                  },
+                  child: _buildBlock("En Proceso", totalProceso, Colors.orange)),
+                GestureDetector(
+                  onTap: () {
+                    widget.onVerTareas(3);
+                    final idEstadoTarea = ref.watch( estadosTareasProvider );
+                    idEstadoTarea.setId(3);
+                  },
+                  child: _buildBlock("Finalizados", totalFinalizado, Colors.green)),
               ],
             ),
           ),

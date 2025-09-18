@@ -65,7 +65,7 @@ class _AvancesState extends ConsumerState<Avances> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Avances de tarea #" + widget.idTarea["id_tarea"].toString()),
+        title: Text("Avances de tarea"), //widget.idTarea["id_tarea"].toString()),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: widget.onBack

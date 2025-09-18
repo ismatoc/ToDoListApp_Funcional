@@ -1,61 +1,21 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:todolistapp/3-presentation/providers/tarea_provider.dart';
-
-// import '../../providers/login_providers.dart';
-
-// class Tareas extends ConsumerStatefulWidget {
-//   const Tareas({super.key});
-
-//   @override
-//   _TareasState createState() => _TareasState();
-// }
-
-// class _TareasState extends ConsumerState<Tareas> {
-
-//   @override
-//   void initState(){
-//     super.initState();
-
-//     Future.microtask((){
-//       final loginInfo = ref.watch( loginProvider.notifier ).info;
-//       ref.read( nowTareaProvider.notifier ).loadAllData({
-//         "tipo_consulta": "R",
-//         "id_usuario": loginInfo["id_usuario"]
-//       });
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-
-    
-//     final tareas = ref.watch( nowTareaProvider );
-
-//     if (tareas == null || tareas.respuesta.isEmpty) {
-//       return const Center(
-//         child: CircularProgressIndicator(),
-//       );
-//     }
-//     print(tareas);
-//     return const Placeholder();
-//   }
-// }
-
-
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:todolistapp/3-presentation/screens/screens.dart';
 
+import '../../../1-domain/1-entities/estados_tareas.dart';
+import '../../providers/estados_tareas_provider.dart';
 import '../../providers/login_providers.dart';
 import '../../providers/tarea_provider.dart';
 
 
 class Tareas extends ConsumerStatefulWidget {
+  
   final ValueChanged<dynamic>? onAvance;
-  const Tareas({super.key, this.onAvance});
+  Tareas({super.key, this.onAvance});
 
   @override
   _CardsDemoPageState createState() => _CardsDemoPageState();
@@ -65,64 +25,131 @@ class _CardsDemoPageState extends ConsumerState<Tareas> {
   /// Lista interna y autónoma del widget
   List<Map<String, dynamic>> _items = [];
   dynamic tarea;
+  int? _estadoTarea; 
+
+
+  final _formKey = GlobalKey<FormState>();
+  final _fechaInicioCtrl = TextEditingController();
+  final _fechaFinCtrl = TextEditingController();
+
+    int? _estadoSeleccionado = 1;
+    DateTime? _fechaInicio;
+    DateTime? _fechaFin;
+
+
+    
+
+    
+    final _dateFmt = DateFormat('yyyy-MM-dd');
+    Future<void> _pickFechaInicio() async {
+      final now = DateTime.now();
+      final picked = await showDatePicker(
+        context: context,
+        initialDate: _fechaInicio ?? now,
+        firstDate: DateTime(now.year - 5),
+        lastDate: DateTime(now.year + 5),
+        helpText: 'Selecciona fecha de inicio',
+        confirmText: 'Aceptar',
+        cancelText: 'Cancelar',
+      );
+      if (picked != null) {
+        setState(() => _fechaInicio = picked);
+      }
+    }
+
+    Future<void> _pickFechaFin() async {
+      final base = _fechaInicio ?? DateTime.now();
+      final picked = await showDatePicker(
+        context: context,
+        initialDate: _fechaFin ?? base,
+        firstDate: DateTime(base.year - 5),
+        lastDate: DateTime(base.year + 5),
+        helpText: 'Selecciona fecha de fin',
+        confirmText: 'Aceptar',
+        cancelText: 'Cancelar',
+      );
+      if (picked != null) {
+        setState(() => _fechaFin = picked);
+      }
+    }
 
   /// Simula carga inicial
   @override
   void initState() {
     super.initState();
-    _cargarDemo();
+    
+
+    DateTime fecha = DateTime.now();
+
     Future.microtask(() async {
-      final loginInfo = ref.read( loginProvider.notifier ).info;
-      await ref.read( nowTareaProvider.notifier ).loadAllData({
-        "tipo_consulta": "R",
-        "id_usuario": loginInfo["id_usuario"]
-      });
+
+        final idEstadoTarea = ref.read( estadosTareasProvider.notifier ).id_estado_tarea;
+
+        print(idEstadoTarea);
+
+
+      if(idEstadoTarea != null && idEstadoTarea != 0){
+        final loginInfo = ref.read( loginProvider.notifier ).info;
+        await ref.read( nowTareaProvider.notifier ).loadAllData({
+          "tipo_consulta": "R",
+          "id_usuario": loginInfo["id_usuario"],
+          "id_estado_tarea": idEstadoTarea
+        });
+
+        await ref.read(nowEstadosTareasProvider.notifier).loadAllData({
+          "tipo_consulta": "R",
+        });
+        
+      }else{
+        final loginInfo = ref.read( loginProvider.notifier ).info;
+        await ref.read( nowTareaProvider.notifier ).loadAllData({
+          "tipo_consulta": "R",
+          "id_usuario": loginInfo["id_usuario"],
+          'fecha1': _dateFmt.format(fecha!),
+          'fecha2': _dateFmt.format(fecha!)
+        });
+
+        await ref.read(nowEstadosTareasProvider.notifier).loadAllData({
+          "tipo_consulta": "R",
+        });
+        
+      }
+
       
     });
+
+    
+      final formato = DateFormat('yyyy-MM-dd');
+      _fechaInicio ??= fecha;
+      _fechaFin ??= fecha;
+
+      _fechaInicioCtrl.text = _dateFmt.format(_fechaInicio!);
+      _fechaFinCtrl.text = _dateFmt.format(_fechaFin!);
   }
 
-  Future<void> _cargarDemo() async {
-    await Future.delayed(const Duration(milliseconds: 350));
-    setState(() {
-      _items = [
-        {
-          "id": 1,
-          "titulo": "Revisión de router zona 1",
-          "descripcion": "Cambiar credenciales y revisar logs.",
-          "estado": "pendiente", // pendiente | en_progreso | completado
-          "prioridad": "alta",   // baja | media | alta
-          "fecha": DateTime.now().subtract(const Duration(hours: 5)),
-          "icon": Icons.router_outlined,
-        },
-        {
-          "id": 2,
-          "titulo": "Actualizar contenedores",
-          "descripcion": "Reconstruir imágenes y limpiar cache.",
-          "estado": "en_progreso",
-          "prioridad": "media",
-          "fecha": DateTime.now().add(const Duration(hours: 2)),
-          "icon": Icons.settings_applications_outlined,
-        },
-        {
-          "id": 3,
-          "titulo": "Emitir reporte semanal",
-          "descripcion": "Resumen de incidencias y uptime.",
-          "estado": "completado",
-          "prioridad": "baja",
-          "fecha": DateTime.now().subtract(const Duration(days: 1)),
-          "icon": Icons.assignment_outlined,
-        },
-      ];
-    });
+   @override
+  void dispose() {
+    _fechaInicioCtrl.dispose();
+    _fechaFinCtrl.dispose();
+    super.dispose();
   }
 
   Future<void> _onRefresh() async {
+    
+    final idEstadoTarea = ref.watch( estadosTareasProvider );
+    idEstadoTarea.setId(0);
+
+
+    DateTime fecha = DateTime.now();
+
     final loginInfo = ref.read(loginProvider.notifier).info; // NO watch
     final userId = (loginInfo?['id_usuario'] as int?);
     if (userId != null) {
       await ref.read(nowTareaProvider.notifier).loadAllData({
         'tipo_consulta': 'R',
         'id_usuario': userId,
+        'fecha1': _dateFmt.format(fecha!),
+        'fecha2': _dateFmt.format(fecha!)
       });
     }
     // Nada de setState + watch aquí.
@@ -212,8 +239,17 @@ class _CardsDemoPageState extends ConsumerState<Tareas> {
     
   }
 
+
+
+  
+
   @override
   Widget build(BuildContext context) {
+    
+
+    const border = OutlineInputBorder(
+      borderRadius: BorderRadius.all(Radius.circular(12)),
+    );
 
     tarea = ref.watch( nowTareaProvider );
 
@@ -224,32 +260,287 @@ class _CardsDemoPageState extends ConsumerState<Tareas> {
     if (tarea.estado == false) {
       return const Center(child: CircularProgressIndicator());
     }
-    
-
-    
 
     return Scaffold(
-      floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
-      floatingActionButton: SizedBox(
-        width: 45,   // ancho más pequeño
-        height: 45,  // alto más pequeño
-        child: FloatingActionButton(
-          backgroundColor: Colors.green[200],
-          onPressed: _agregar,
-          child: const Icon(Icons.add, size: 20), // ícono más chico
-        ),
-      ),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
+      // floatingActionButton: SizedBox(
+      //   width: 45,   // ancho más pequeño
+      //   height: 45,  // alto más pequeño
+      //   child: FloatingActionButton(
+      //     backgroundColor: Colors.green[200],
+      //     onPressed: _agregar,
+      //     child: const Icon(Icons.add, size: 20), // ícono más chico
+      //   ),
+      // ),
 
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Padding(
+
+          
+
+          Padding(
             padding: EdgeInsets.only(bottom: 2, top: 2),
-            child: Center(
-              child: Text(
-                'Tareas',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
-              ),
+            child: Row(
+              children: [
+
+                Padding(
+                  padding: const EdgeInsets.only(left: 15, top: 5),
+                  child: ElevatedButton.icon(
+                    onPressed:() async {
+
+                      _fechaInicio = null;
+                      _fechaFin = null;
+
+                      _fechaInicioCtrl.clear();
+                      _fechaFinCtrl.clear();
+                      
+
+                      // await ref.read(nowEstadosTareasProvider.notifier).loadAllData({
+                      //   "tipo_consulta": "R",
+                      // });
+
+                      final infoestadosTareas = ref.watch(nowEstadosTareasProvider);
+
+                      if (infoestadosTareas == null || infoestadosTareas.respuesta.isEmpty) {
+                        Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+
+                      final estadosTareas = (infoestadosTareas.respuesta as List)
+                        .map((e) => Estados_Tareas.fromMap(e as Map<String, dynamic>))
+                        .toList();
+
+                      final valueIdEstadosTareas = (_estadoSeleccionado != null &&
+                              estadosTareas.any((a) => a.id_estado_tarea == _estadoSeleccionado))
+                              ? _estadoSeleccionado
+                              : null;
+
+                      DateTime fechita = DateTime.now();
+                      final formato = DateFormat('yyyy-MM-dd');
+                      _fechaInicio ??= fechita;
+                      _fechaFin ??= fechita;
+
+                      _fechaInicioCtrl.text = _dateFmt.format(_fechaInicio!);
+                      _fechaFinCtrl.text = _dateFmt.format(_fechaFin!);
+
+                      showDialog(
+                        context: context, 
+                        builder:(context) {
+                          return StatefulBuilder(
+                            builder: (context, setStateDialog) {
+                                return AlertDialog(
+                              title: const Text("Filtrar por: ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                              content: SizedBox(
+                                width: 450,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // TextField(
+                                    //   decoration: InputDecoration(
+                                    //     labelText: "Buscar",
+                                    //     border: OutlineInputBorder(),
+                                    //   ),
+                                    // ),
+                                    // SizedBox(height: 10),
+                                    // TextField(
+                                    //   decoration: InputDecoration(
+                                    //     labelText: "Estado",
+                                    //     border: OutlineInputBorder(),
+                                    //   ),
+                                    // ),
+                            
+                                    DropdownButtonFormField<int>(
+                                    decoration: const InputDecoration(
+                                      labelText: 'Estado',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                                      ),
+                                    ),
+                                    value: valueIdEstadosTareas,
+                                    items: estadosTareas
+                                        .map((a) => DropdownMenuItem<int>(
+                                              value: a.id_estado_tarea,         
+                                              child: Text(a.descripcion),    
+                                            ))
+                                        .toList(),
+                                    onChanged: (id) => setState(() => _estadoSeleccionado = id),
+                                    validator: (id) => id == null ? 'Seleccione un Estado' : null,
+                                  ),
+                            
+                            
+                                    SizedBox(height: 10),
+                                    
+                            
+                            
+                                    Form(
+                                      key: _formKey,
+                                      child: Column(
+                                        children: [
+                                          // TextFormField(
+                                          //   readOnly: true,
+                                          //   decoration: InputDecoration(
+                                          //     labelText: 'Fecha inicio',
+                                          //     border: border,
+                                          //     suffixIcon: IconButton(
+                                          //       icon: const Icon(Icons.date_range),
+                                          //       onPressed: _pickFechaInicio,
+                                          //     ),
+                                          //   ),
+                                          //   controller: TextEditingController(
+                                          //     text: _fechaInicio == null ? '' : _dateFmt.format(_fechaInicio!),
+                                          //   ),
+                                          //   validator: (_) =>
+                                          //       _fechaInicio == null ? 'Seleccione fecha de inicio' : null,
+                                          // ),
+                                          // const SizedBox(width: 12),
+
+                                          TextFormField(
+                                            controller: _fechaInicioCtrl,
+                                            readOnly: true,
+                                            decoration: InputDecoration(
+                                              labelText: 'Fecha inicio',
+                                              border: const OutlineInputBorder(
+                                                borderRadius: BorderRadius.all(Radius.circular(12))
+                                              ),
+                                              suffixIcon: IconButton(
+                                                icon: const Icon(Icons.date_range),
+                                                onPressed: () async {
+                                                  final picked = await showDatePicker(
+                                                    context: context,
+                                                    initialDate: _fechaInicio ?? DateTime.now(),
+                                                    firstDate: DateTime(2000),
+                                                    lastDate: DateTime(2100),
+                                                  );
+                                                  if (picked != null) {
+                                                    _fechaInicio = picked;
+                                                    _fechaInicioCtrl.text = _dateFmt.format(picked);
+                                                    setStateDialog(() {}); // 🔁 refresca el modal
+                                                  }
+                                                },
+                                              ),
+                                            ),
+                                            validator: (_) => _fechaInicio == null ? 'Seleccione fecha de inicio' : null,
+                                          ),
+
+                                          SizedBox(height: 10),
+
+                                          TextFormField(
+                                            controller: _fechaFinCtrl,
+                                            readOnly: true,
+                                            decoration: InputDecoration(
+                                              labelText: 'Fecha Fin',
+                                              border: const OutlineInputBorder(
+                                                borderRadius: BorderRadius.all(Radius.circular(12))
+                                              ),
+                                              suffixIcon: IconButton(
+                                                icon: const Icon(Icons.date_range),
+                                                onPressed: () async {
+                                                  final picked = await showDatePicker(
+                                                    context: context,
+                                                    initialDate: _fechaFin ?? DateTime.now(),
+                                                    firstDate: DateTime(2000),
+                                                    lastDate: DateTime(2100),
+                                                  );
+                                                  if (picked != null) {
+                                                    _fechaFin = picked;
+                                                    _fechaFinCtrl.text = _dateFmt.format(picked);
+                                                    setStateDialog(() {}); // 🔁 refresca el modal
+                                                  }
+                                                },
+                                              ),
+                                            ),
+                                            validator: (_) => _fechaFin == null ? 'Seleccione fecha de inicio' : null,
+                                          ),
+
+                                          
+                                        ],
+                                      ),
+                                    ),
+                            
+                            
+                                  ],
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text("Cerrar"),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    // Aquí iría lógica para aplicar filtros
+
+                                    final loginInfo = ref.read(loginProvider.notifier).info; // NO watch
+                                    final userId = (loginInfo?['id_usuario'] as int?);
+
+                                    var data = {
+                                      'tipo_consulta': 'R',
+                                      'id_usuario': userId,
+                                    };
+
+                                    if( _estadoSeleccionado != null){
+                                      data['id_estado_tarea'] = _estadoSeleccionado; 
+                                    }
+
+                                    if (_fechaInicio != null && _fechaFin != null){
+                                      if (_fechaInicio!.isAfter(_fechaFin!)){
+                                        Mensajes('Error', 'La fecha inicio no puede ser mayor que la fecha fin', DialogType.error, context);
+                                      }else{
+                                        if(_fechaFin!.isBefore(_fechaInicio!)){
+                                          Mensajes('Error', 'La fecha fin no puede ser menor que la fecha inicio', DialogType.error, context);
+                                        }else{
+                                          
+                                            data['fecha1'] = _fechaInicioCtrl.text;
+                                            data['fecha2'] = _fechaFinCtrl.text;
+
+
+                                          
+                                        }
+                                      }
+                                    }
+                            
+                                    await ref.read(nowTareaProvider.notifier).loadAllData(data);
+                            
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text("Aplicar"),
+                                ),
+                              ],
+                            );
+                            },
+                          );
+                        },
+                      );
+                    }, 
+                    icon: const Icon(Icons.filter_alt), 
+                    label: const Text('Filtro')
+                  ),
+                ),
+
+                SizedBox(width: 70),
+
+                const Text(
+                  'Tareas',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+                ),
+
+                Spacer(),
+
+                Padding(
+                  padding: const EdgeInsets.only(right: 15, top: 5),
+                  child: SizedBox(
+                    width: 45,   // ancho más pequeño
+                    height: 45,  // alto más pequeño
+                    child: FloatingActionButton(
+                      backgroundColor: Colors.green[200],
+                      onPressed: _agregar,
+                      child: const Icon(Icons.add, size: 20), // ícono más chico
+                    ),
+                  ),
+                )
+              ],
             ),
           ),
           const SizedBox(height: 8),
@@ -260,11 +551,13 @@ class _CardsDemoPageState extends ConsumerState<Tareas> {
                 child: lista.isEmpty
                     ? ListView(
                         physics: const AlwaysScrollableScrollPhysics(),
-                        children: const [
+                        children: [
                           SizedBox(height: 120),
                           Icon(Icons.inbox_outlined, size: 64, color: Colors.grey),
                           SizedBox(height: 10),
-                          Center(child: Text('Sin elementos todavía')),
+                          Center(child: Text('Sin tareas consultadas o registradas.')),
+                          Center(child: Text('Cree una tarea.!')),
+                          Center(child: Text("Fecha Actual: ${_fechaInicio != null ? _dateFmt.format(_fechaInicio!) : ''}")),
                           SizedBox(height: 400),
                         ],
                       )
@@ -275,8 +568,7 @@ class _CardsDemoPageState extends ConsumerState<Tareas> {
                         separatorBuilder: (_, __) => const SizedBox(height: 10),
                         itemBuilder: (context, index) {
                           final item = lista[index];
-                          
-                          print(item);
+                    
                           final String titulo = ((item["descripcion"] as String) ?? "").toString();
                           final String descripcion = (item["detalle_proyecto"] ?? "").toString();
                           final String estado = (item["estado_tarea"]).toString();
@@ -321,9 +613,23 @@ class _CardsDemoPageState extends ConsumerState<Tareas> {
                                               Row(
                                                 children: [
                                                   Chip(
-                                                    label: Text('ID: ${item["id_tarea"]}'),
-                                                    avatar: item["estado"] == "A" ? Icon(Icons.circle, color: Colors.green,) :  Icon(Icons.circle, color: Colors.red,),
+                                                    
+                                                    backgroundColor: item["id_estado_tarea"] == 1 ?Colors.blue.withOpacity(0.7) : item["id_estado_tarea"] == 2 ? Colors.orange.withOpacity(0.7) : Colors.green.withOpacity(0.7),
+                                                    side: BorderSide(
+                                                      color: Colors.white,
+                                                      width: 2.2
+                                                    ),
+                                                    label: Text(item["estado_tarea"].toUpperCase(), style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12),), //Text('ID: ${item["id_tarea"]}'),
+                                                    // avatar: item["id_estado_tarea"] == 1 ? Icon(Icons.circle, color: Colors.blue,) : item["id_estado_tarea"] == 2 ? Icon(Icons.circle, color: Colors.yellow,) : Icon(Icons.circle, color: Colors.green,),
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.circular(20),
+                                                    ),
+                                                    padding: const EdgeInsets.symmetric(
+                                                      horizontal: 3,
+                                                      vertical: 0,  
+                                                    ),
                                                   ),
+
                                                   Spacer(),
                                                   Column(
                                                     children: [
@@ -440,7 +746,7 @@ class _CardsDemoPageState extends ConsumerState<Tareas> {
                                               descripcion,
                                               maxLines: 2,                    
                                               overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(color: Colors.grey)
+                                              style: TextStyle(color: Colors.black)
                                             ),
                                           ),
                                         ],
@@ -456,7 +762,16 @@ class _CardsDemoPageState extends ConsumerState<Tareas> {
                                       children: [
                                         Padding(
                                           padding: const EdgeInsets.only(left: 10),
-                                          child: Text("Estado: " + item["estado_tarea"].toUpperCase()),
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text("Avance: " + item["avance"].toString() + '%', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.start,)),
+                                              Text('Creado: ' + item["fecha_grabacion"].toString(), style: TextStyle(fontSize: 14, color: Colors.grey), textAlign: TextAlign.start,),
+                                            ],
+                                          )
                                         ),
                                         Spacer(),
                                         Container(
@@ -493,15 +808,14 @@ class _CardsDemoPageState extends ConsumerState<Tareas> {
                                           ),
                                         ),
             
-                                        // Spacer()
+                                       
                                         const SizedBox(width: 6),
-                                        // FilledButton.icon(
-                                        //   onPressed: () => _eliminar(item),
-                                        //   icon: const Icon(Icons.delete_outline),
-                                        //   label: const Text('Eliminar'),
-                                        // ),
+                                        
                                       ],
                                     ),
+
+                                    
+
                                     SizedBox(height: 10),
             
                                   ],

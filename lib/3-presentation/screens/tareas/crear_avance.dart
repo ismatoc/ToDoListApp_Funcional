@@ -33,6 +33,7 @@ class _NuevoAvanceSheetState extends ConsumerState<NuevoAvanceSheet> {
   final _picker = ImagePicker();
   var idTarea;
   var loginInfo;
+  int activa = 0;
 
   DateTime? _fecha;
   final _dateFmt = DateFormat('yyyy-MM-dd');
@@ -327,76 +328,81 @@ Future<void> logVideoInfo(File f, {String tag = ''}) async {
   void _removeVideoAt(int i) => setState(() => _videos.removeAt(i));
 
   Future<void> _guardar() async {
-    final txt = _txtCtrl.text.trim();
-    if (txt.isEmpty) {
-      return Mensajes('error', 'descripcion es requerido.!', DialogType.error, context);
+
+    activa = activa + 1;
+    if(activa == 1){
+      final txt = _txtCtrl.text.trim();
+      if (txt.isEmpty) {
+        return Mensajes('error', 'descripcion es requerido.!', DialogType.error, context);
+      }
+
+      final msg = ChatMessage(
+        id: widget.inicial?.id ?? DateTime.now().microsecondsSinceEpoch.toString(),
+        userId: widget.currentUserId,
+        text: txt,
+        fecha: '',//_fechaHora,
+        hora: '',
+        progreso: _progreso.round(),
+        fotos: List<File>.from(_fotos),
+        videos: List<File>.from(_videos),
+      );
+      
+      final formato = DateFormat('yyyy-MM-dd');
+
+      final ubicacion = await  Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 10),
+      );
+
+      var info = {
+        "tipo_consulta": "C",
+        "id_tarea": idTarea,
+        "descripcion": txt,
+        "fecha": formato.format(_fecha!),
+        "hora": '1970-01-01 ' + _horaCtrl.text + ':00',
+        "latitud": ubicacion.latitude,
+        "longitud": ubicacion.longitude,
+        "avance":  int.parse(_avanceCtrl.text),
+        "usuario_creacion_web": loginInfo["usuario"],
+      };
+
+
+      final providerAvance = await ref.read( nowAvanceProvider.notifier ).loadAllData(
+        info
+      );
+
+      
+
+      var infoMultimedia = {
+        "tipo_consulta": "C",
+        "id_tarea_detalle": providerAvance.respuesta["id_tarea_detalle"],
+        "id_usuario": loginInfo["id_usuario"],
+        "fecha": formato.format(_fecha!),
+        "hora": '1970-01-01 ' + _horaCtrl.text + ':00',
+        "latitud": ubicacion.latitude,
+        "longitud": ubicacion.longitude,
+        "usuario_creacion_web": loginInfo["usuario"]
+      };
+
+      final resultMultimedia = await ref.read( multimediaNotifierProvider.notifier ).subir(
+        info: infoMultimedia, 
+        fotos: List<File>.from(_fotos), 
+        videos: List<File>.from(_videos)
+      );
+
+      await Future.delayed(Duration(seconds: 1));
+      setState(() {
+        activa = 0;
+      });
+
+      Navigator.pop(context, msg);
+
+      final rootContext = Navigator.of(context, rootNavigator: true).context;
+      Mensajes('correcto', 'avance guardado con éxito.!', DialogType.success, rootContext);
+      
     }
 
-    final msg = ChatMessage(
-      id: widget.inicial?.id ?? DateTime.now().microsecondsSinceEpoch.toString(),
-      userId: widget.currentUserId,
-      text: txt,
-      fecha: '',//_fechaHora,
-      hora: '',
-      progreso: _progreso.round(),
-      fotos: List<File>.from(_fotos),
-      videos: List<File>.from(_videos),
-    );
     
-    final formato = DateFormat('yyyy-MM-dd');
-
-    final ubicacion = await  Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-      timeLimit: const Duration(seconds: 10),
-    );
-
-    var info = {
-      "tipo_consulta": "C",
-      "id_tarea": idTarea,
-      "descripcion": txt,
-      "fecha": formato.format(_fecha!),
-      "hora": '1970-01-01 ' + _horaCtrl.text + ':00',
-      "latitud": ubicacion.latitude,
-      "longitud": ubicacion.longitude,
-      "avance":  int.parse(_avanceCtrl.text),
-      "usuario_creacion_web": loginInfo["usuario"],
-    };
-
-
-    final providerAvance = await ref.read( nowAvanceProvider.notifier ).loadAllData(
-      info
-    );
-
-    
-
-    var infoMultimedia = {
-      "tipo_consulta": "C",
-      "id_tarea_detalle": providerAvance.respuesta["id_tarea_detalle"],
-      "id_usuario": loginInfo["id_usuario"],
-      "fecha": formato.format(_fecha!),
-      "hora": '1970-01-01 ' + _horaCtrl.text + ':00',
-      "latitud": ubicacion.latitude,
-      "longitud": ubicacion.longitude,
-      "usuario_creacion_web": loginInfo["usuario"]
-    };
-
-    final resultMultimedia = await ref.read( multimediaNotifierProvider.notifier ).subir(
-      info: infoMultimedia, 
-      fotos: List<File>.from(_fotos), 
-      videos: List<File>.from(_videos)
-    );
-
-
-    // Navigator.pop(context, msg);
-
-    // Future.microtask(() {
-    //   Mensajes('correcto', 'avance guardado con éxito.!', DialogType.success, context);
-    // });
-
-    Navigator.pop(context, msg);
-
-    final rootContext = Navigator.of(context, rootNavigator: true).context;
-    Mensajes('correcto', 'avance guardado con éxito.!', DialogType.success, rootContext);
 
 
   }
