@@ -48,11 +48,12 @@ void onStart(ServiceInstance service) async {
 
   IO.Socket socket = IO.io(
     // Environment.apiUrl,
-    'https://j99lbcr4-3000.use2.devtunnels.ms',
+    //'https://j99lbcr4-3000.use2.devtunnels.ms',
     // 'https://g3cd7r9p-3000.use2.devtunnels.ms',
+    'https://api.munimixco.gob.gt',
     IO.OptionBuilder()
         .setTransports(['websocket'])
-        .setPath('/firmasign/socket.io')
+        .setPath('/todolist/socket.io')
         // .setQuery(_userId != null ? {'id_usuario': '${_userId!}'} : {})
         .setQuery(_userId != null ? {'id_usuario': '$_userId'} : {'id_usuario':null})
         .disableAutoConnect()

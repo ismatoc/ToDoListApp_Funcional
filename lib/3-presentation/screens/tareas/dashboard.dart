@@ -44,16 +44,35 @@ class _DashboardState extends ConsumerState<Dashboard> {
 
     dashboard = ref.watch( nowDashboardProvider );
 
- 
+    print(dashboard);
 
     if (dashboard.estado == false) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    totalTareas = int.parse(dashboard.respuesta["totales"][3]["total"].toString());
-    totalInicio = int.parse(dashboard.respuesta["totales"][0]["total"].toString());
-    totalProceso = int.parse(dashboard.respuesta["totales"][1]["total"].toString());
-    totalFinalizado = int.parse(dashboard.respuesta["totales"][2]["total"].toString());
+    if(dashboard.respuesta["totales"].length > 0){
+
+      for (var i = 0; i < dashboard.respuesta["totales"].length; i++) {
+        if(dashboard.respuesta["totales"][i]["estado"] == "Total"){
+          totalTareas = int.parse(dashboard.respuesta["totales"][i]["total"].toString());
+        }
+
+        if(dashboard.respuesta["totales"][i]["estado"] == "Inicio"){
+          totalInicio = int.parse(dashboard.respuesta["totales"][i]["total"].toString());
+        }
+
+        if(dashboard.respuesta["totales"][i]["estado"] == "Proceso"){
+          totalProceso = int.parse(dashboard.respuesta["totales"][i]["total"].toString());
+        }
+
+        if(dashboard.respuesta["totales"][i]["estado"] == "Finalizado"){
+          totalFinalizado = int.parse(dashboard.respuesta["totales"][i]["total"].toString()); 
+        }
+      }
+
+    }
+
+    
 
     final dataMap = <String, double>{
       "Inicio": totalInicio.toDouble(),
