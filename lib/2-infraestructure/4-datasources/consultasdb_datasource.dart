@@ -5,6 +5,9 @@ import 'package:todolistapp/1-domain/1-entities/login.dart';
 import 'package:todolistapp/1-domain/2-datasources/consultas_datasource.dart';
 import 'package:todolistapp/0-config/constants/environment.dart';
 
+
+import 'package:path/path.dart' as p;
+
 import '../../1-domain/1-entities/multimedia.dart';
 import 'package:path/path.dart' as p;
 import 'package:http_parser/http_parser.dart';
@@ -165,6 +168,7 @@ class ConsultasDbDatasource extends ConsultasDatasource {
     }
 
     String _guessVideoSubtype(String path) {
+      print(path);
       switch (p.extension(path).toLowerCase()) {
         case '.mp4':
         case '.m4v': return 'mp4';
@@ -177,36 +181,15 @@ class ConsultasDbDatasource extends ConsultasDatasource {
       }
     }
 
-    // final form = FormData.fromMap({
-    //   'fotos': await _toMultipart(fotos),
-    //   'videos': await _toMultipart(videos),
-    //   ...info, // campos extra (id_usuario, etc.)
-    // });
 
-    // final resp = await dio.post('/multimedia', data: form,
-    //   options: Options(contentType: 'multipart/form-data'),
-    // );
-
-    // if (resp.statusCode == 201) {
-    //   return UploadResult.fromJson(resp.data as Map<String, dynamic>);
-    // }
-    // throw Exception('Error ${resp.statusCode}: ${resp.data}');
-
-     final form = FormData(); // no uses fromMap aquí para controlar el orden
+     final form = FormData(); 
 
     // 1) Primero los campos de texto
     info.forEach((k, v) {
       form.fields.add(MapEntry(k, v.toString()));
     });
 
-    // 2) Luego los archivos (fotos)
-    // for (final f in fotos) {
-    //   final filename = f.path.split(Platform.pathSeparator).last;
-    //   form.files.add(MapEntry(
-    //     'fotos',
-    //     await MultipartFile.fromFile(f.path, filename: filename),
-    //   ));
-    // }
+
 
       for (final f in fotos) {
         form.files.add(MapEntry(
@@ -219,14 +202,7 @@ class ConsultasDbDatasource extends ConsultasDatasource {
         ));
       }
 
-    // 3) Luego los archivos (videos)
-    // for (final v in videos) {
-    //   final filename = v.path.split(Platform.pathSeparator).last;
-    //   form.files.add(MapEntry(
-    //     'videos',
-    //     await MultipartFile.fromFile(v.path, filename: filename),
-    //   ));
-    // }
+ 
 
      for (final v in videos) {
         form.files.add(MapEntry(
@@ -251,6 +227,8 @@ class ConsultasDbDatasource extends ConsultasDatasource {
     throw Exception('Error ${resp.statusCode}: ${resp.data}');
 
   }
+
+
   
   @override
   Future<Login> getMedia(Map<String, dynamic> info) async {

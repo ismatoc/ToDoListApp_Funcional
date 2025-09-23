@@ -87,21 +87,27 @@ class _CardsDemoPageState extends ConsumerState<Tareas> {
 
         print(idEstadoTarea);
 
+      final loginInfo = ref.read( loginProvider.notifier ).info;
+
+      await ref.read(nowEstadosTareasProvider.notifier).loadAllData({
+        "tipo_consulta": "R",
+      });
+
 
       if(idEstadoTarea != null && idEstadoTarea != 0){
-        final loginInfo = ref.read( loginProvider.notifier ).info;
+        // final loginInfo = ref.read( loginProvider.notifier ).info;
         await ref.read( nowTareaProvider.notifier ).loadAllData({
           "tipo_consulta": "R",
           "id_usuario": loginInfo["id_usuario"],
           "id_estado_tarea": idEstadoTarea
         });
 
-        await ref.read(nowEstadosTareasProvider.notifier).loadAllData({
-          "tipo_consulta": "R",
-        });
+        // await ref.read(nowEstadosTareasProvider.notifier).loadAllData({
+        //   "tipo_consulta": "R",
+        // });
         
       }else{
-        final loginInfo = ref.read( loginProvider.notifier ).info;
+        
         await ref.read( nowTareaProvider.notifier ).loadAllData({
           "tipo_consulta": "R",
           "id_usuario": loginInfo["id_usuario"],
@@ -109,9 +115,7 @@ class _CardsDemoPageState extends ConsumerState<Tareas> {
           'fecha2': _dateFmt.format(fecha!)
         });
 
-        await ref.read(nowEstadosTareasProvider.notifier).loadAllData({
-          "tipo_consulta": "R",
-        });
+        
         
       }
 

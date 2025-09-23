@@ -427,115 +427,57 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
               
                   
               
-                  if (widget.message["fotos"].isNotEmpty) ...[
-                    const SizedBox(height: 10),
-                    // Wrap(
-                    //   spacing: 8, runSpacing: 8,
-                    //   children: message.fotos
-                    //       .map((f) => ClipRRect(
-                    //             borderRadius: BorderRadius.circular(10),
-                    //             child: Image.file(f, width: 100, height: 100, fit: BoxFit.cover),
-                    //           ))
-                    //       .toList(),
-                    // ),
-                    // ImagesGridCompact(
-                    //   files: message['fotos'], //message.fotos,
-                    // ),
+                  // if (widget.message["fotos"].isNotEmpty) ...[
+                  //   const SizedBox(height: 10),
+                   
               
-                      // if (fotosRaw.isNotEmpty) ...[
+                      // if (widget.message["tiene_multimedia"] == "1") ...[
                       //   const SizedBox(height: 10),
                       //   FutureBuilder<List<File>>(
-                      //     future: decodeFotosToFiles(fotosRaw),
+                      //     future: decodeFotosToFiles(
+                      //       fotosRaw,
+                      //       scope: '${widget.message["id_tarea_detalle"]}_${widget.message["fecha_detalle"]}_${widget.message["hora_detalle"]}',
+                      //       clearScopeDir: true, // borra caché del mensaje antes de escribir
+                      //     ),
                       //     builder: (context, snap) {
                       //       if (snap.connectionState != ConnectionState.done) {
-                      //         return const SizedBox(
-                      //           height: 96,
-                      //           child: Center(child: CircularProgressIndicator()),
-                      //         );
+                      //         return const SizedBox(height: 96, child: Center(child: CircularProgressIndicator()));
                       //       }
                       //       final files = snap.data ?? const <File>[];
                       //       if (files.isEmpty) return const SizedBox.shrink();
-                      //       return ImagesGridCompact(files: files, thumb: 88, spacing: 6);
+                      //       // Opcional: clave única para el grid por mensaje, refuerza cache-busting del subtree
+                      //       return KeyedSubtree(
+                      //         key: ValueKey('grid_fotos_${widget.message["id_tarea_detalle"]}_${widget.message["fecha_detalle"]}_${widget.message["hora_detalle"]}'),
+                      //         child: ImagesGridCompact(urls: widget.message["fotos"]),
+                      //       );
                       //     },
                       //   ),
                       // ],
               
-                      if (fotosRaw.isNotEmpty) ...[
-                        const SizedBox(height: 10),
-                        FutureBuilder<List<File>>(
-                          future: decodeFotosToFiles(
-                            fotosRaw,
-                            scope: '${widget.message["id_tarea_detalle"]}_${widget.message["fecha_detalle"]}_${widget.message["hora_detalle"]}',
-                            clearScopeDir: true, // borra caché del mensaje antes de escribir
-                          ),
-                          builder: (context, snap) {
-                            if (snap.connectionState != ConnectionState.done) {
-                              return const SizedBox(height: 96, child: Center(child: CircularProgressIndicator()));
-                            }
-                            final files = snap.data ?? const <File>[];
-                            if (files.isEmpty) return const SizedBox.shrink();
-                            // Opcional: clave única para el grid por mensaje, refuerza cache-busting del subtree
-                            return KeyedSubtree(
-                              key: ValueKey('grid_fotos_${widget.message["id_tarea_detalle"]}_${widget.message["fecha_detalle"]}_${widget.message["hora_detalle"]}'),
-                              child: ImagesGridCompact(files: files, thumb: 88, spacing: 6),
-                            );
-                          },
-                        ),
-                      ]
+                  
               
-                  ],
+                
               
-                  // if (message.videos.isNotEmpty) ...[
+              
+                  // if (videosRaw.isNotEmpty) ...[
                   //   const SizedBox(height: 8),
-                  //   Column(
-                  //     children: message.videos.asMap().entries.map((e) {
-                  //       final idx = e.key;
-                  //       return _VideoTilePlaceholder(isMine: isMine, label: 'Video ${idx + 1}');
-                  //     }).toList(),
+                  //   FutureBuilder<List<File>>(
+                  //     future: decodeVideosToFiles(videosRaw),
+                  //     builder: (context, snap) {
+                  //       if (snap.connectionState != ConnectionState.done) {
+                  //         return const SizedBox(
+                  //           height: 80,
+                  //           child: Center(child: CircularProgressIndicator()),
+                  //         );
+                  //       }
+                  //       final files = snap.data ?? const <File>[];
+                  //       if (files.isEmpty) return const SizedBox.shrink();
+                  //       return VideosGridCompact(files: files); // tu widget existente
+                  //     },
                   //   ),
-                  // ],
+                  // ]
               
-                  // if (message.videos.isNotEmpty) ...[
-                  //   const SizedBox(height: 10),
-                  //   Column(
-                  //     children: message.videos.asMap().entries.map((e) {
-                  //       final i = e.key;
-                  //       final file = e.value;
-                  //       return Padding(
-                  //         padding: const EdgeInsets.only(bottom: 8),
-                  //         child: VideoThumbTileVP(
-                  //           file: file,
-                  //           label: 'Video ${i + 1}',
-                  //           size: 80,
-                  //         ),
-                  //       );
-                  //     }).toList(),
-                  //   ),
-                  // ],
-              
-              
-                  if (videosRaw.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    FutureBuilder<List<File>>(
-                      future: decodeVideosToFiles(videosRaw),
-                      builder: (context, snap) {
-                        if (snap.connectionState != ConnectionState.done) {
-                          return const SizedBox(
-                            height: 80,
-                            child: Center(child: CircularProgressIndicator()),
-                          );
-                        }
-                        final files = snap.data ?? const <File>[];
-                        if (files.isEmpty) return const SizedBox.shrink();
-                        return VideosGridCompact(files: files); // tu widget existente
-                      },
-                    ),
-                  ]
-              
-                  // if (message["videos"].isNotEmpty) ...[
-                  //   const SizedBox(height: 8),
-                  //   VideosGridCompact(files: message.videos),
-                  // ],
+                 
                 ],
               ),
             ),
@@ -556,9 +498,13 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
                       backgroundColor: Colors.blue[300],
                       onPressed:() async {
 
+                        print(widget.message["fotos"]);
+                        print(widget.message["videos"]);
+
                        
-                        
-                        abrirModalMultimedia(context, ref, widget.message["id_tarea_detalle"]);
+                        abrirModalMultimedia(context, widget.message);
+
+                        // abrirModalMultimedia(context, ref, widget.message["id_tarea_detalle"]);
                       },
                       child: const Icon(Icons.perm_media, color: Colors.white) // ícono más chico
                     ),
@@ -605,241 +551,71 @@ class _VideoTilePlaceholder extends StatelessWidget {
 
 
 
-// void showSimpleModal(BuildContext context, ref, id_tarea_detalle) async {
+Future<void> abrirModalMultimedia(BuildContext context, Map<String, dynamic> message) {
+  final fotos = List<String>.from(message["fotos"] ?? []);
+  final videos = List<String>.from(message["videos"] ?? []);
 
-//   final media = await ref.read( nowMediaProvider.notifier ).loadAllData({
-//     "tipo_consulta":"R",
-//     "id_tarea_detalle": id_tarea_detalle
-//   });        
-
-//   List<String> fotos = [];
-//   List<String> videos = [];
-//   for (var i = 0; i < media.respuesta.length; i++) {
-
-//     if(media.respuesta[i]["mime"] == "image/jpeg"){
-//       fotos.add(media.respuesta[i]["base64"]);
-//     }
-//     if(media.respuesta[i]["mime"] == "application/mp4"){
-//       videos.add(media.respuesta[i]["base64"]);
-//     }
-//   }
-
-
-//   showDialog(
-//     context: context,
-//     barrierDismissible: true, // cerrar tocando fuera
-//     builder: (context) {
-//       return Dialog(
-//         shape: RoundedRectangleBorder(
-//           borderRadius: BorderRadius.circular(20),
-//         ),
-//         elevation: 12,
-//         backgroundColor: Colors.white,
-//         child: Padding(
-//           padding: const EdgeInsets.all(24.0),
-//           child: Column(
-//             mainAxisSize: MainAxisSize.min,
-//             children: [
-//               // Título
-//               Text(
-//                 "Multimedia",
-//                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-//                       fontWeight: FontWeight.bold,
-//                       color: Theme.of(context).colorScheme.primary,
-//                     ),
-//                 textAlign: TextAlign.center,
-//               ),
-//               const SizedBox(height: 16),
-
-              
-//               if (fotos.isNotEmpty) ...[
-
-//                 Text('Fotos: ${fotos.length}'),
-//                 const SizedBox(height: 10),
-//                 FutureBuilder<List<File>>(
-//                   future: decodeFotosToFiles(
-//                     fotos,
-//                     scope: 'hola',//'${widget.message["id_tarea_detalle"]}_${widget.message["fecha_detalle"]}_${widget.message["hora_detalle"]}',
-//                     clearScopeDir: true, // borra caché del mensaje antes de escribir
-//                   ),
-//                   builder: (context, snap) {
-//                     if (snap.connectionState != ConnectionState.done) {
-//                       return const SizedBox(height: 96, child: Center(child: CircularProgressIndicator()));
-//                     }
-//                     final files = snap.data ?? const <File>[];
-//                     if (files.isEmpty) return const SizedBox.shrink();
-//                     // Opcional: clave única para el grid por mensaje, refuerza cache-busting del subtree
-//                     return KeyedSubtree(
-//                       key: ValueKey(''),//'grid_fotos_${widget.message["id_tarea_detalle"]}_${widget.message["fecha_detalle"]}_${widget.message["hora_detalle"]}'),
-//                       child: ImagesGridCompact(files: files, thumb: 88, spacing: 6),
-//                     );
-//                   },
-//                 ),
-//               ],
-
-//               if (videos.isNotEmpty) ...[
-//                 const SizedBox(height: 8),
-//                 FutureBuilder<List<File>>(
-//                   future: decodeVideosToFiles(videos),
-//                   builder: (context, snap) {
-//                     if (snap.connectionState != ConnectionState.done) {
-//                       return const SizedBox(
-//                         height: 80,
-//                         child: Center(child: CircularProgressIndicator()),
-//                       );
-//                     }
-//                     final files = snap.data ?? const <File>[];
-//                     if (files.isEmpty) return const SizedBox.shrink();
-//                     return VideosGridCompact(files: files); // tu widget existente
-//                   },
-//                 ),
-//               ],
-
-
-
-
-//               const SizedBox(height: 24),
-
-//               // Botón de cerrar
-//               SizedBox(
-//                 width: double.infinity,
-//                 child: ElevatedButton(
-//                   style: ElevatedButton.styleFrom(
-//                     shape: RoundedRectangleBorder(
-//                       borderRadius: BorderRadius.circular(12),
-//                     ),
-//                     padding: const EdgeInsets.symmetric(vertical: 14),
-//                   ),
-//                   onPressed: () => Navigator.pop(context),
-//                   child: const Text("Cerrar"),
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//       );
-//     },
-//   );
-// }
-
-
-Future<void> abrirModalMultimedia(BuildContext context, WidgetRef ref, int idTareaDetalle) {
   return showDialog(
     context: context,
     barrierDismissible: true,
     barrierColor: Colors.black54,
     builder: (context) {
-      // 👉 Arranca el futuro DENTRO del builder
-      final future = _loadYDecodificar(ref, idTareaDetalle);
-
       return Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         backgroundColor: Colors.white,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 640, maxHeight: 600),
-          child: FutureBuilder<MediaFiles>(
-            future: future,
-            builder: (context, snap) {
-              final cargando = snap.connectionState != ConnectionState.done;
-
-              // Contenido base (lista o mensaje vacío)
-              Widget contenido;
-              if (snap.hasData) {
-                final data = snap.data!;
-                contenido = Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          "Multimedia",
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                        ),
-                        const SizedBox(height: 16),
-
-                        if (data.fotos.isNotEmpty) ...[
-                          Text('Fotos: ${data.fotos.length}'),
-                          const SizedBox(height: 10),
-                          ImagesGridCompact(files: data.fotos, thumb: 88, spacing: 6),
-                          const SizedBox(height: 12),
-                        ],
-
-                        if (data.videos.isNotEmpty) ...[
-                          Text('Videos: ${data.videos.length}'),
-                          const SizedBox(height: 10),
-                          VideosGridCompact(files: data.videos),
-                          const SizedBox(height: 12),
-                        ],
-
-                        if (data.fotos.isEmpty && data.videos.isEmpty)
-                          const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 24),
-                            child: Center(child: Text('No hay multimedia para mostrar')),
-                          ),
-
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () => Navigator.pop(context),
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                          ),
-                          child: const Text("Cerrar"),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              } else {
-                // estructura mínima mientras no hay data (igual habrá overlay)
-                contenido = const SizedBox(height: 240, width: 320);
-              }
-
-              return Stack(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  contenido,
-
-                  // Overlay de carga dentro del modal
-                  if (cargando)
-                    Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.45),
-                          borderRadius: BorderRadius.circular(20),
+                  Text(
+                    "Multimedia",
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
-                        child: const Center(child: CircularProgressIndicator()),
-                      ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  if (fotos.isNotEmpty) ...[
+                    Text('Fotos: ${fotos.length}'),
+                    const SizedBox(height: 10),
+                    ImagesGridCompact(urls: fotos),
+                    // ImagesGridCompact(files: fotos, thumb: 88, spacing: 6),
+                    const SizedBox(height: 12),
+                  ],
+
+                  if (videos.isNotEmpty) ...[
+                    Text('Videos: ${videos.length}'),
+                    const SizedBox(height: 10),
+                    // VideosGridCompact(files: videos),
+                    VideosGridCompact(urls: videos),
+                    const SizedBox(height: 12),
+                  ],
+
+                  if (fotos.isEmpty && videos.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24),
+                      child: Center(child: Text('No hay multimedia para mostrar')),
                     ),
 
-                  // Overlay de error
-                  if (snap.hasError && !cargando)
-                    Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.45),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(24.0),
-                            child: Text(
-                              'Error cargando multimedia:\n${snap.error}',
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        ),
-                      ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
+                    child: const Text("Cerrar"),
+                  ),
                 ],
-              );
-            },
+              ),
+            ),
           ),
         ),
       );
@@ -847,38 +623,169 @@ Future<void> abrirModalMultimedia(BuildContext context, WidgetRef ref, int idTar
   );
 }
 
+
+
+
+// Future<void> abrirModalMultimedia(BuildContext context, WidgetRef ref, int idTareaDetalle) {
+//   return showDialog(
+//     context: context,
+//     barrierDismissible: true,
+//     barrierColor: Colors.black54,
+//     builder: (context) {
+//       // 👉 Arranca el futuro DENTRO del builder
+//       final future = _loadYDecodificar(ref, idTareaDetalle);
+
+//       return Dialog(
+//         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+//         backgroundColor: Colors.white,
+//         child: ConstrainedBox(
+//           constraints: const BoxConstraints(maxWidth: 640, maxHeight: 600),
+//           child: FutureBuilder<MediaFiles>(
+//             future: future,
+//             builder: (context, snap) {
+//               final cargando = snap.connectionState != ConnectionState.done;
+
+//               // Contenido base (lista o mensaje vacío)
+//               Widget contenido;
+//               if (snap.hasData) {
+//                 final data = snap.data!;
+//                 contenido = Padding(
+//                   padding: const EdgeInsets.all(24.0),
+//                   child: SingleChildScrollView(
+//                     child: Column(
+//                       mainAxisSize: MainAxisSize.min,
+//                       crossAxisAlignment: CrossAxisAlignment.stretch,
+//                       children: [
+//                         Text(
+//                           "Multimedia",
+//                           textAlign: TextAlign.center,
+//                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
+//                                 fontWeight: FontWeight.bold,
+//                                 color: Theme.of(context).colorScheme.primary,
+//                               ),
+//                         ),
+//                         const SizedBox(height: 16),
+
+//                         if (data.fotos.isNotEmpty) ...[
+//                           Text('Fotos: ${data.fotos.length}'),
+//                           const SizedBox(height: 10),
+//                           ImagesGridCompact(files: data.fotos, thumb: 88, spacing: 6),
+//                           const SizedBox(height: 12),
+//                         ],
+
+//                         if (data.videos.isNotEmpty) ...[
+//                           Text('Videos: ${data.videos.length}'),
+//                           const SizedBox(height: 10),
+//                           VideosGridCompact(files: data.videos),
+//                           const SizedBox(height: 12),
+//                         ],
+
+//                         if (data.fotos.isEmpty && data.videos.isEmpty)
+//                           const Padding(
+//                             padding: EdgeInsets.symmetric(vertical: 24),
+//                             child: Center(child: Text('No hay multimedia para mostrar')),
+//                           ),
+
+//                         const SizedBox(height: 16),
+//                         ElevatedButton(
+//                           onPressed: () => Navigator.pop(context),
+//                           style: ElevatedButton.styleFrom(
+//                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+//                             padding: const EdgeInsets.symmetric(vertical: 14),
+//                           ),
+//                           child: const Text("Cerrar"),
+//                         ),
+//                       ],
+//                     ),
+//                   ),
+//                 );
+//               } else {
+//                 // estructura mínima mientras no hay data (igual habrá overlay)
+//                 contenido = const SizedBox(height: 240, width: 320);
+//               }
+
+//               return Stack(
+//                 children: [
+//                   contenido,
+
+//                   // Overlay de carga dentro del modal
+//                   if (cargando)
+//                     Positioned.fill(
+//                       child: Container(
+//                         decoration: BoxDecoration(
+//                           color: Colors.black.withOpacity(0.45),
+//                           borderRadius: BorderRadius.circular(20),
+//                         ),
+//                         child: const Center(child: CircularProgressIndicator()),
+//                       ),
+//                     ),
+
+//                   // Overlay de error
+//                   if (snap.hasError && !cargando)
+//                     Positioned.fill(
+//                       child: Container(
+//                         decoration: BoxDecoration(
+//                           color: Colors.black.withOpacity(0.45),
+//                           borderRadius: BorderRadius.circular(20),
+//                         ),
+//                         child: Center(
+//                           child: Padding(
+//                             padding: const EdgeInsets.all(24.0),
+//                             child: Text(
+//                               'Error cargando multimedia:\n${snap.error}',
+//                               textAlign: TextAlign.center,
+//                               style: const TextStyle(color: Colors.white),
+//                             ),
+//                           ),
+//                         ),
+//                       ),
+//                     ),
+//                 ],
+//               );
+//             },
+//           ),
+//         ),
+//       );
+//     },
+//   );
+// }
+
 // -------- helpers --------
 
-class MediaFiles {
-  final List<File> fotos;
-  final List<File> videos;
-  MediaFiles(this.fotos, this.videos);
-}
+// class MediaFiles {
+//   final List<File> fotos;
+//   final List<File> videos;
+//   MediaFiles(this.fotos, this.videos);
+// }
 
-Future<MediaFiles> _loadYDecodificar(WidgetRef ref, int idTareaDetalle) async {
-  // 👇 ahora cargamos aquí (no afuera del dialog)
-  final media = await ref.read(nowMediaProvider.notifier).loadAllData({
-    "tipo_consulta": "R",
-    "id_tarea_detalle": idTareaDetalle,
-  });
+// Future<MediaFiles> _loadYDecodificar(WidgetRef ref, int idTareaDetalle) async {
+//   // 👇 ahora cargamos aquí (no afuera del dialog)
+//   final media = await ref.read(nowMediaProvider.notifier).loadAllData({
+//     "tipo_consulta": "R",
+//     "id_tarea_detalle": idTareaDetalle,
+//   });
 
-  final fotosB64  = <String>[];
-  final videosB64 = <String>[];
+//   final fotosB64  = <String>[];
+//   final videosB64 = <String>[];
 
-  for (final item in media.respuesta) {
-    final mime = (item["mime"] ?? "").toString();
-    if (mime == "image/jpeg")      fotosB64.add(item["base64"]);
-    if (mime == "application/mp4") videosB64.add(item["base64"]);
-  }
+//   for (final item in media.respuesta) {
+//     final mime = (item["mime"] ?? "").toString();
+//     if (mime == "image/jpeg")      fotosB64.add(item["base64"]);
+//     if (mime == "application/mp4") videosB64.add(item["base64"]);
+//   }
 
-  // Decodifica en paralelo
-  final results = await Future.wait([
-    decodeFotosToFiles(fotosB64, scope: 'media_$idTareaDetalle', clearScopeDir: true),
-    decodeVideosToFiles(videosB64),
-  ]);
+//   // Decodifica en paralelo
+//   final results = await Future.wait([
+//     decodeFotosToFiles(fotosB64, scope: 'media_$idTareaDetalle', clearScopeDir: true),
+//     decodeVideosToFiles(videosB64),
+//   ]);
 
-  return MediaFiles(results[0] as List<File>, results[1] as List<File>);
-}
+//   return MediaFiles(results[0] as List<File>, results[1] as List<File>);
+// }
+
+
+
+
 
 
 
