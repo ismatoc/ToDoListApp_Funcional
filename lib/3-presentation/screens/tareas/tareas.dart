@@ -773,12 +773,13 @@ class _CardsDemoPageState extends ConsumerState<Tareas> {
                                               Align(
                                                 alignment: Alignment.centerLeft,
                                                 child: Text("Avance: " + item["avance"].toString() + '%', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.start,)),
-                                              Text('Creado: ' + item["fecha_grabacion"].toString(), style: TextStyle(fontSize: 14, color: Colors.grey), textAlign: TextAlign.start,),
+                                              Text('Creado: ' + item["fecha_grabacion"].toString(), style: TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold), textAlign: TextAlign.start,),
                                             ],
                                           )
                                         ),
                                         Spacer(),
                                         Container(
+                                          // width: 100,
                                           decoration: BoxDecoration(
                                             gradient: const LinearGradient(
                                               colors: [Color(0xFF1D4ED8), Color(0xFF3B82F6)], // azul → azul claro

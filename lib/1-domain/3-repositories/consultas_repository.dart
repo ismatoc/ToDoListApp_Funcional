@@ -21,5 +21,7 @@ abstract class ConsutlasRepository {
   Future<Login> getMedia(Map<String, dynamic> info);
   Future<Login> dashboard(Map<String, dynamic> info);
 
+  Future<Login> restablecer(Map<String, dynamic> info);
+  Future<Login> validarestablecer(Map<String, dynamic> info);
 
 }

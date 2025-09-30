@@ -17,6 +17,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:video_player/video_player.dart';
 import 'package:path/path.dart' as p;
 
+import 'package:video_compress/video_compress.dart';
+
+
 import '../../tools/mensajes.dart';
 var logger = Logger();
 class NuevoAvanceSheet extends ConsumerStatefulWidget {
@@ -230,34 +233,126 @@ Future<void> logVideoInfo(File f, {String tag = ''}) async {
     ),
   );
 
+  // if (choice == 'gallery') {
+  //   // TIP: con FilePicker puedes obtener el tamaño sin abrir File
+  //   final res = await FilePicker.platform.pickFiles(
+  //     type: FileType.video,
+  //     allowMultiple: true,
+  //     withData: false, // true también te trae bytes, pero no es necesario
+  //   );
+  //   if (res != null && res.files.isNotEmpty) {
+  //     final files = <File>[];
+  //     for (final pf in res.files) {
+  //       if (pf.path == null) continue;
+  //       final f = File(pf.path!);
+  //       // Log de tamaño/nombre/duración
+  //       await logVideoInfo(f, tag: 'GALLERY');
+  //       files.add(f);
+  //     }
+  //     setState(() => _videos.addAll(files));
+  //   }
+  // } 
+
   if (choice == 'gallery') {
-    // TIP: con FilePicker puedes obtener el tamaño sin abrir File
-    final res = await FilePicker.platform.pickFiles(
-      type: FileType.video,
-      allowMultiple: true,
-      withData: false, // true también te trae bytes, pero no es necesario
-    );
-    if (res != null && res.files.isNotEmpty) {
-      final files = <File>[];
-      for (final pf in res.files) {
-        if (pf.path == null) continue;
-        final f = File(pf.path!);
-        // Log de tamaño/nombre/duración
-        await logVideoInfo(f, tag: 'GALLERY');
-        files.add(f);
+  final res = await FilePicker.platform.pickFiles(
+    type: FileType.video,
+    allowMultiple: true,
+    withData: false,
+  );
+
+  if (res != null && res.files.isNotEmpty) {
+    final files = <File>[];
+    for (final pf in res.files) {
+      if (pf.path == null) continue;
+      final f = File(pf.path!);
+
+      // Validar tamaño
+      final fileSize = await f.length();
+      if (fileSize > 100 * 1024 * 1024) { // 100MB
+        if (context.mounted) {
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   SnackBar(
+          //     content: Text(
+          //       'El video "${pf.name}" supera los 100MB permitidos',
+          //     ),
+          //   ),
+          // );
+          Mensajes('Error', '${pf.name} supera los 100MB permitidos', DialogType.error, context);
+        }
+        continue; // no lo agregamos
       }
-      setState(() => _videos.addAll(files));
+
+      // Mostrar loading mientras se comprime
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      // Comprimir a 480p
+      final compressed = await VideoCompress.compressVideo(
+        f.path,
+        quality: VideoQuality.Res640x480Quality,
+        deleteOrigin: false,
+      );
+
+      Navigator.of(context).pop();
+
+      if (compressed != null && compressed.file != null) {
+        final cf = File(compressed.file!.path);
+
+        // Log de tamaño/nombre/duración
+        await logVideoInfo(cf, tag: 'GALLERY_COMPRESSED');
+
+        files.add(cf);
+      }
     }
-  } else if (choice == 'camera') {
+
+    setState(() => _videos.addAll(files));
+  }
+}
+
+  
+    else if (choice == 'camera') {
     final v = await _picker.pickVideo(
       source: ImageSource.camera,
-      maxDuration: const Duration(minutes: 5),
+      maxDuration: const Duration(minutes: 1),
     );
+
     if (v != null) {
-      final f = File(v.path);
-      // Log de tamaño/nombre/duración
-      await logVideoInfo(f, tag: 'CAMERA');
-      setState(() => _videos.add(f));
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      final compressed = await VideoCompress.compressVideo(
+        v.path,
+        quality: VideoQuality.Res640x480Quality,
+        deleteOrigin: false, // conserva el original si quieres
+      );
+
+      Navigator.of(context).pop();
+
+      // final f = File(v.path);
+      // // Log de tamaño/nombre/duración
+      // await logVideoInfo(f, tag: 'CAMERA');
+      // setState(() => _videos.add(f));
+
+      if (compressed != null && compressed.file != null) {
+        final f = File(compressed.file!.path);
+
+        // Log de tamaño/nombre/duración
+        await logVideoInfo(f, tag: 'CAMERA_COMPRESSED');
+
+        // Ahora guardas el comprimido en tu lista
+        setState(() => _videos.add(f));
+      }
     }
   }
 }

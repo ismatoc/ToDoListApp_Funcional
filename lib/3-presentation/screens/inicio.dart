@@ -72,7 +72,7 @@ class _InicioState extends ConsumerState<Inicio> {
                 leading: const SizedBox.shrink(),
                 elevation: 0,
                 backgroundColor: Colors.transparent,
-                title: const Text("TareasMixco", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+                title: const Text("Login", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
             
                 centerTitle: true,
                 flexibleSpace: Container(
@@ -100,7 +100,8 @@ class _InicioState extends ConsumerState<Inicio> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.lock_outline, size: 60, color: Colors.blueAccent),
+                            // const Icon(Icons.assignment, size: 60, color: Colors.blueAccent),
+                            Image.asset('assets/lista.png', width: 120,),
                             const SizedBox(height: 16),
                             Text(
                               "Bienvenido",
@@ -225,6 +226,13 @@ class _InicioState extends ConsumerState<Inicio> {
                             ),
             
                             const SizedBox(height: 24),
+
+                            TextButton(
+                              onPressed: () {
+                                context.push('/principal/recuperar');
+                              },
+                              child: Text('¿Recuperar Contraseña?', style: TextStyle(decoration: TextDecoration.underline, fontSize: 15, color: Colors.blue, fontWeight: FontWeight.bold),)
+                            )
             
                             // Botón
                             // SizedBox(

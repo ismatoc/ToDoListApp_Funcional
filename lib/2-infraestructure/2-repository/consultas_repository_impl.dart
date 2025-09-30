@@ -50,6 +50,16 @@ class ConsultasRepositoryImpl extends ConsutlasRepository {
   Future<Login> dashboard(Map<String, dynamic> info) {
     return datasource.dashboard(info);
   }
+  
+  @override
+  Future<Login> restablecer(Map<String, dynamic> info) {
+    return datasource.restablecer(info);
+  }
+  
+  @override
+  Future<Login> validarestablecer(Map<String, dynamic> info) {
+    return datasource.validarestablecer(info);
+  }
 
   
 

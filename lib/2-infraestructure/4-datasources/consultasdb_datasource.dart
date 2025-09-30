@@ -271,6 +271,48 @@ class ConsultasDbDatasource extends ConsultasDatasource {
       throw Exception();
     }
   }
+  
+  @override
+  Future<Login> restablecer(Map<String, dynamic> info) async {
+    try {
+      final String method = 'POST';
+      final String url = '/usuarios';
+
+      final response = await dio.request(
+        url,
+        data: info,
+        options: Options(
+          method: method
+        )
+      );
+
+      final data = response.data;
+      return Login.fromJson(data);
+    } catch (e) {
+      throw Exception();
+    }
+  }
+  
+  @override
+  Future<Login> validarestablecer(Map<String, dynamic> info) async {
+    try {
+      final String method = 'POST';
+      final String url = '/restablecer';
+
+      final response = await dio.request(
+        url,
+        data: info,
+        options: Options(
+          method: method
+        )
+      );
+
+      final data = response.data;
+      return Login.fromJson(data);
+    } catch (e) {
+      throw Exception();
+    }
+  }
 
   
 

@@ -349,6 +349,7 @@ class _CrearTareaState extends ConsumerState<CrearTarea> {
                                 Expanded(
                                   child: TextFormField(
                                     readOnly: true,
+                                    style: TextStyle(fontSize: 14),
                                     decoration: InputDecoration(
                                       labelText: 'Fecha inicio',
                                       border: border,
@@ -368,6 +369,7 @@ class _CrearTareaState extends ConsumerState<CrearTarea> {
                                 Expanded(
                                   child: TextFormField(
                                     readOnly: true,
+                                    style: TextStyle(fontSize: 14),
                                     decoration: InputDecoration(
                                       labelText: 'Fecha fin',
                                       border: border,

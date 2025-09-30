@@ -5,6 +5,7 @@ export "package:todolistapp/3-presentation/screens/tareas/crear_tarea.dart";
 export "package:todolistapp/3-presentation/screens/tareas/avances.dart";
 export 'package:todolistapp/3-presentation/screens/tareas/crear_avance.dart';
 export "package:todolistapp/3-presentation/screens/tareas/avancesScroll.dart";
+export "package:todolistapp/3-presentation/screens/recuperar.dart";
 
 
 // Tools

@@ -12,6 +12,7 @@ import 'package:todolistapp/3-presentation/screens/tareas/crear_avance.dart';
 import 'package:path/path.dart' as p;
 
 import '../../../1-domain/1-entities/avance.dart'; // para tipos en el sheet
+import '../../tools/visor_imagenes.dart';
 import '../screens.dart';
 
 bool cargandoMedia = false;
